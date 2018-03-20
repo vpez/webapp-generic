@@ -5,7 +5,7 @@ package org.vap.webapp.data;
  * March 20, 2018
  */
 public abstract class Persistent {
-    protected String id;
+    private String id;
 
     public String getId() {
         return id;

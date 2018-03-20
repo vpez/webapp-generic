@@ -77,7 +77,7 @@ public class MongoDataManager<T extends Persistent> implements DataManager<T> {
     }
 
     private MongoCollection<Document> getCollection() {
-        return mongoClient.getDatabase(database).getCollection(type.getName());
+        return mongoClient.getDatabase(database).getCollection(type.getSimpleName());
     }
 
     private T fromDocument(Gson gson, Document document) {

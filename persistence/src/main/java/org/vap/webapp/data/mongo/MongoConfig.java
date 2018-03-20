@@ -4,6 +4,7 @@ import com.mongodb.MongoClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.vap.webapp.data.Product;
 
 /**
@@ -12,6 +13,7 @@ import org.vap.webapp.data.Product;
  */
 
 @Configuration
+@PropertySource(value = {"application.properties"})
 public class MongoConfig {
 
     @Value("${spring.data.mongodb.host}")
