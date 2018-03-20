@@ -30,8 +30,8 @@ public class SampleController {
     @RequestMapping("/insert")
     public Product insert() {
         Product product = new Product();
-        product.setName("Beer");
-        product.setPrice(12.50);
+        product.setName("Wine");
+        product.setPrice(8.0);
 
         productDataManager.insert(product);
         return product;
@@ -40,5 +40,10 @@ public class SampleController {
     @RequestMapping("/find/{id}")
     public Product find(@PathVariable("id") String id) {
         return productDataManager.getById(id);
+    }
+
+    @RequestMapping("/findAll")
+    public List<Product> findAll() {
+        return productDataManager.getAll();
     }
 }
