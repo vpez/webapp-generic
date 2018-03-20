@@ -12,4 +12,8 @@ public interface DataManager<T extends Persistent> {
     List<T> getAll();
 
     T insert(T instance);
+
+    T update(T instance);
+
+    boolean deleteById(String id);
 }

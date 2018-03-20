@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.result.DeleteResult;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -53,9 +54,26 @@ public class MongoDataManager<T extends Persistent> implements DataManager<T> {
     @Override
     public T insert(T instance) {
         Document document = Document.parse(new Gson().toJson(instance));
-
         getCollection().insertOne(document);
+
         return populateId(instance, document);
+    }
+
+    @Override
+    public T update(T instance) {
+        Document criteria = new Criteria(KEY).is(new ObjectId(instance.getId())).getCriteriaObject();
+        Document update = Document.parse(new Gson().toJson(instance));
+        getCollection().replaceOne(criteria, update);
+
+        return instance;
+    }
+
+    @Override
+    public boolean deleteById(String id) {
+        Document criteria = new Criteria(KEY).is(new ObjectId(id)).getCriteriaObject();
+        DeleteResult deleteResult = getCollection().deleteOne(criteria);
+
+        return deleteResult.getDeletedCount() > 0;
     }
 
     private MongoCollection<Document> getCollection() {
@@ -63,6 +81,10 @@ public class MongoDataManager<T extends Persistent> implements DataManager<T> {
     }
 
     private T fromDocument(Gson gson, Document document) {
+        if (document == null) {
+            return null;
+        }
+
         return populateId(gson.fromJson(document.toJson(), type), document);
     }
 
