@@ -3,7 +3,6 @@ package org.vap.webapp.data.mongo;
 import com.google.gson.Gson;
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoCollection;
 import com.mongodb.client.result.DeleteResult;
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -16,21 +15,21 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 /**
+ * MongoDB implementation of CRUD operations.
+ * Every object type is stored in a separate collection, matching the class name.
+ *
  * @author Vahe Pezeshkian
  * March 20, 2018
  */
-public class MongoDataManager<T extends Persistent> implements DataManager<T> {
+public class MongoDataManager<T extends Persistent> extends AbstractMongoDataManager<T> implements DataManager<T> {
 
-    private static final String KEY = "_id";
+    public MongoDataManager(Class<T> type, MongoClient mongoClient, String database) {
+        super(type, mongoClient, database);
+    }
 
-    private Class<T> type;
-    private MongoClient mongoClient;
-    private String database;
-
-    MongoDataManager(Class<T> type, MongoClient mongoClient, String database)  {
-        this.type = type;
-        this.mongoClient = mongoClient;
-        this.database = database;
+    @Override
+    public String getCollectionName() {
+        return type.getSimpleName();
     }
 
     @Override
@@ -74,10 +73,6 @@ public class MongoDataManager<T extends Persistent> implements DataManager<T> {
         DeleteResult deleteResult = getCollection().deleteOne(criteria);
 
         return deleteResult.getDeletedCount() > 0;
-    }
-
-    private MongoCollection<Document> getCollection() {
-        return mongoClient.getDatabase(database).getCollection(type.getSimpleName());
     }
 
     private T fromDocument(Gson gson, Document document) {

@@ -3,6 +3,8 @@ package org.vap.webapp.data;
 import java.util.List;
 
 /**
+ * Common interface to perform basic CRUD operations on a data source
+ *
  * @author Vahe Pezeshkian
  * March 20, 2018
  */
