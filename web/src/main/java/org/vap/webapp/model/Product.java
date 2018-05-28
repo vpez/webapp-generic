@@ -1,4 +1,6 @@
-package org.vap.webapp.data;
+package org.vap.webapp.model;
+
+import org.vap.webapp.data.Persistent;
 
 /**
  * @author Vahe Pezeshkian

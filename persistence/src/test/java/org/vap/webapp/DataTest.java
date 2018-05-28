@@ -1,13 +1,16 @@
 package org.vap.webapp;
 
+import com.mongodb.MongoClient;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.vap.webapp.data.DataManager;
-import org.vap.webapp.data.Product;
+import org.vap.webapp.data.Persistent;
 import org.vap.webapp.data.mongo.MongoConfig;
+import org.vap.webapp.data.mongo.MongoDataManagerFactory;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -24,11 +27,23 @@ import static org.junit.Assert.assertTrue;
 public class DataTest {
 
     @Autowired
-    private DataManager<Product> productDataManager;
+    private MongoConfig mongoConfig;
+    @Autowired
+    private MongoClient mongoClient;
+
+    private MongoDataManagerFactory dataManagerFactory;
+
+    @Before
+    public void setup() {
+        dataManagerFactory = new MongoDataManagerFactory(mongoClient, mongoConfig);
+    }
 
     @Test
     public void productCRUD() {
-        Product product = new Product();
+
+        DataManager<TestProduct> productDataManager = dataManagerFactory.create(TestProduct.class);
+
+        TestProduct product = new TestProduct();
         product.setName("Test_Product");
         product.setPrice(10);
 
@@ -42,7 +57,7 @@ public class DataTest {
         productDataManager.update(product);
 
         // Read
-        Product load = productDataManager.getById(id);
+        TestProduct load = productDataManager.getById(id);
         assertEquals("Test_Product", load.getName());
         assertEquals(20.0, load.getPrice(), 0.001);
 
@@ -51,4 +66,27 @@ public class DataTest {
         assertNull(productDataManager.getById(id));
     }
 
+    /**
+     * A test class to perform database actions
+     */
+    class TestProduct extends Persistent {
+        private String name;
+        private double price;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public double getPrice() {
+            return price;
+        }
+
+        public void setPrice(double price) {
+            this.price = price;
+        }
+    }
 }
