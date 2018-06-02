@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.vap.webapp.data.DataManager;
-import org.vap.webapp.data.Product;
+import org.vap.webapp.data.Repository;
+import org.vap.webapp.model.Product;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,7 +19,7 @@ import java.util.List;
 public class SampleController {
 
     @Autowired
-    private DataManager<Product> productDataManager;
+    private Repository<Product> productRepository;
 
     @RequestMapping("/list")
     public List<String> getList() {
@@ -33,17 +33,17 @@ public class SampleController {
         product.setName("Wine");
         product.setPrice(8.0);
 
-        productDataManager.insert(product);
+        productRepository.insert(product);
         return product;
     }
 
     @RequestMapping("/find/{id}")
     public Product find(@PathVariable("id") String id) {
-        return productDataManager.getById(id);
+        return productRepository.getById(id);
     }
 
     @RequestMapping("/findAll")
     public List<Product> findAll() {
-        return productDataManager.getAll();
+        return productRepository.getAll();
     }
 }

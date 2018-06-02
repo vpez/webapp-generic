@@ -1,0 +1,34 @@
+####################################################################
+#     Prepare service dependencies for deployment mode             #
+####################################################################
+
+# To deploy main application and all dependant services:
+# docker-compose up
+
+version: '3'
+services:
+  mongo:
+    image: mongo
+    ports:
+    - 27017:27017
+
+  mysql:
+    restart: always
+    image: mysql
+    command: mysqld --default-authentication-plugin=mysql_native_password
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: demo
+
+  app:
+    build: .
+    restart: always
+    ports:
+    - 8081:8081
+    volumes:
+    - /tmp:/tmp
+    depends_on:
+    - mongo
+    entrypoint: "java -Dspring.data.mongodb.host=mongo -Dspring.data.jdbc.url=jdbc:mysql://mysql:3306/demo -Dspring.data.jdbc.username=root -Dspring.data.jdbc.password=root -Djava.security.egd=file:/dev/./urandom -jar /app.jar"

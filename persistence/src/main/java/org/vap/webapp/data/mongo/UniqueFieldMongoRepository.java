@@ -4,9 +4,8 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.result.DeleteResult;
 import org.bson.Document;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.vap.webapp.data.DataManager;
 import org.vap.webapp.data.Persistent;
-import org.vap.webapp.data.UniqueFieldDataManager;
+import org.vap.webapp.data.Repository;
 
 import java.util.List;
 import java.util.function.Function;
@@ -19,14 +18,14 @@ import java.util.function.Function;
  * @author Vahe Pezeshkian
  * May 28, 2018
  */
-public class UniqueFieldMongoDataManager<T extends Persistent, U> extends AbstractMongoDataManager<T> implements UniqueFieldDataManager<T, U> {
+public class UniqueFieldMongoRepository<T extends Persistent, U> extends AbstractMongoRepository<T> implements Repository<T> {
 
     private static final String REF_ID = "refId";
 
     /**
      * Main data manager to delegate object mapping
      */
-    private DataManager<T> wrappedDataManager;
+    private Repository<T> wrappedRepository;
 
     /**
      * Function that extracts unique field(s)
@@ -38,15 +37,16 @@ public class UniqueFieldMongoDataManager<T extends Persistent, U> extends Abstra
      */
     private Function<U, String> keyMapper;
 
-    public UniqueFieldMongoDataManager(Class<T> type, MongoClient mongoClient, String database,
-                                Function<T, U> keyExtractor,
-                                Function<U, String> keyMapper) {
+    public UniqueFieldMongoRepository(Class<T> type, MongoClient mongoClient, String database,
+                                      Repository<T> repository,
+                                      Function<T, U> keyExtractor,
+                                      Function<U, String> keyMapper) {
 
         super(type, mongoClient, database);
 
         this.keyExtractor = keyExtractor;
         this.keyMapper = keyMapper;
-        this.wrappedDataManager = new MongoDataManager<>(type, mongoClient, database);
+        this.wrappedRepository = repository;
     }
 
     @Override
@@ -55,22 +55,18 @@ public class UniqueFieldMongoDataManager<T extends Persistent, U> extends Abstra
     }
 
     @Override
-    public T getUnique(U value) {
-
-        // Lookup in proxy collection
-        String refId = searchProxy(value);
-
-        return wrappedDataManager.getById(refId);
-    }
-
-    @Override
     public T getById(String id) {
-        return wrappedDataManager.getById(id);
+        return wrappedRepository.getById(id);
     }
 
     @Override
     public List<T> getAll() {
-        return wrappedDataManager.getAll();
+        return wrappedRepository.getAll();
+    }
+
+    @Override
+    public List<T> getByValue(String attribute, Object value) {
+        return wrappedRepository.getByValue(attribute, value);
     }
 
     @Override
@@ -82,7 +78,7 @@ public class UniqueFieldMongoDataManager<T extends Persistent, U> extends Abstra
             return null;
         }
 
-        T inserted = wrappedDataManager.insert(instance);
+        T inserted = wrappedRepository.insert(instance);
 
         // Insert in proxy collection
         String uniqueKey = calculateUniqueKey(instance);
@@ -99,7 +95,7 @@ public class UniqueFieldMongoDataManager<T extends Persistent, U> extends Abstra
 
         // TODO update proxy collection on key change
 
-        return wrappedDataManager.update(instance);
+        return wrappedRepository.update(instance);
     }
 
     @Override
@@ -107,7 +103,7 @@ public class UniqueFieldMongoDataManager<T extends Persistent, U> extends Abstra
 
         T instance = getById(id);
 
-        boolean deleteObject = wrappedDataManager.deleteById(id);
+        boolean deleteObject = wrappedRepository.deleteById(id);
 
         // Delete from proxy collection
         Document criteria = new Criteria(KEY).is(calculateUniqueKey(instance)).getCriteriaObject();

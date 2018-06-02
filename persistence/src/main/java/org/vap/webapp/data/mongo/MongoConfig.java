@@ -33,9 +33,4 @@ public class MongoConfig {
     public MongoClient mongoClient() {
         return new MongoClient(host);
     }
-
-//    @Bean
-//    public MongoDataManager<Product> productDataManager() {
-//        return new MongoDataManager<>(Product.class, mongoClient(), database);
-//    }
 }

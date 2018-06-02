@@ -11,7 +11,7 @@ import org.vap.webapp.data.Persistent;
  * @author Vahe Pezeshkian
  * May 28, 2018
  */
-public abstract class AbstractMongoDataManager<T extends Persistent> {
+public abstract class AbstractMongoRepository<T extends Persistent> {
 
     protected static final String KEY = "_id";
 
@@ -19,7 +19,7 @@ public abstract class AbstractMongoDataManager<T extends Persistent> {
     protected MongoClient mongoClient;
     protected String database;
 
-    public AbstractMongoDataManager(Class<T> type, MongoClient mongoClient, String database) {
+    public AbstractMongoRepository(Class<T> type, MongoClient mongoClient, String database) {
         this.type = type;
         this.mongoClient = mongoClient;
         this.database = database;

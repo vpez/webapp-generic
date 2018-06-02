@@ -1,0 +1,15 @@
+DROP TABLE User;
+
+CREATE TABLE User(
+  id VARCHAR(32) PRIMARY KEY,
+  username VARCHAR(100) NOT NULL UNIQUE,
+  password VARCHAR(32) NOT NULL
+);
+
+DROP TABLE UserLogin;
+
+CREATE TABLE UserLogin(
+  userId VARCHAR(32) NOT NULL,
+  timestamp LONG NOT NULL,
+  host VARCHAR(100) NOT NULL
+);

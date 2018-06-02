@@ -16,6 +16,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring.data.version>2.0.5.RELEASE</spring.data.version>
+        <spring.jdbc.version>4.1.6.RELEASE</spring.jdbc.version>
+        <mysql.connection.version>5.1.6</mysql.connection.version>
         <commons.codec.version>1.4</commons.codec.version>
     </properties>
 
@@ -30,6 +32,17 @@
             <artifactId>spring-data-mongodb</artifactId>
             <version>${spring.data.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+            <version>${spring.jdbc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>${mysql.connection.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>

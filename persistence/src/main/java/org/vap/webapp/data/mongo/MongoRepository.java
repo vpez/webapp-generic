@@ -5,10 +5,11 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.result.DeleteResult;
 import org.bson.Document;
+import org.bson.json.JsonWriterSettings;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.vap.webapp.data.DataManager;
 import org.vap.webapp.data.Persistent;
+import org.vap.webapp.data.Repository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,9 +22,13 @@ import java.util.stream.StreamSupport;
  * @author Vahe Pezeshkian
  * March 20, 2018
  */
-public class MongoDataManager<T extends Persistent> extends AbstractMongoDataManager<T> implements DataManager<T> {
+public class MongoRepository<T extends Persistent> extends AbstractMongoRepository<T> implements Repository<T> {
 
-    public MongoDataManager(Class<T> type, MongoClient mongoClient, String database) {
+    private static final JsonWriterSettings settings = JsonWriterSettings.builder()
+            .int64Converter((value, writer) -> writer.writeNumber(value.toString()))
+            .build();
+
+    public MongoRepository(Class<T> type, MongoClient mongoClient, String database) {
         super(type, mongoClient, database);
     }
 
@@ -43,11 +48,14 @@ public class MongoDataManager<T extends Persistent> extends AbstractMongoDataMan
     @Override
     public List<T> getAll() {
         final FindIterable<Document> iterable = getCollection().find();
-        Gson gson = new Gson();
+        return fromDocuments(iterable);
+    }
 
-        return StreamSupport.stream(iterable.spliterator(), false)
-                .map(document -> fromDocument(gson, document))
-                .collect(Collectors.toList());
+    @Override
+    public List<T> getByValue(String attribute, Object value) {
+        Document criteria = new Criteria(attribute).is(value).getCriteriaObject();
+        final FindIterable<Document> iterable = getCollection().find(criteria);
+        return fromDocuments(iterable);
     }
 
     @Override
@@ -80,11 +88,19 @@ public class MongoDataManager<T extends Persistent> extends AbstractMongoDataMan
             return null;
         }
 
-        return populateId(gson.fromJson(document.toJson(), type), document);
+        return populateId(gson.fromJson(document.toJson(settings), type), document);
     }
 
     private T populateId(T instance, Document document) {
         instance.setId(document.getObjectId(KEY).toString());
         return instance;
+    }
+
+    private List<T> fromDocuments(FindIterable<Document> documents) {
+        Gson gson = new Gson();
+
+        return StreamSupport.stream(documents.spliterator(), false)
+                .map(document -> fromDocument(gson, document))
+                .collect(Collectors.toList());
     }
 }

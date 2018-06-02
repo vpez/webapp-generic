@@ -8,10 +8,12 @@ import java.util.List;
  * @author Vahe Pezeshkian
  * March 20, 2018
  */
-public interface DataManager<T extends Persistent> {
+public interface Repository<T extends Persistent> {
     T getById(String id);
 
     List<T> getAll();
+
+    List<T> getByValue(String attribute, Object value);
 
     T insert(T instance);
 
